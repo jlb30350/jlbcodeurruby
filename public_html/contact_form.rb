@@ -1,6 +1,7 @@
 #contact
 require 'sinatra'
 require 'json'
+require 'sendgrid-ruby'
 
 def is_email(var)
   (var =~ /\A[\w+\-.]+@[a-z\d\-]+(\.[a-z]+)*\.[a-z]+\z/i) != nil
@@ -17,8 +18,6 @@ def verify_input(var)
 end
 
 
-require 'pony'
-require 'sendgrid-ruby'
 
 
 post '/submit' do
