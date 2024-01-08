@@ -1,0 +1,17 @@
+if array["isSuccess"]
+    # Configuration pour l'envoi d'e-mails avec SendGrid
+    sg = SendGrid::API.new(api_key: 'YOUR_SENDGRID_API_KEY')
+    from = SendGrid::Email.new(email: "#{array['firstname']} #{array['name']} <#{array['email']}>")
+    to = SendGrid::Email.new(email: email_to)
+    subject = 'Sujet de l\'e-mail'
+    content = SendGrid::Content.new(type: 'text/plain', value: email_text)
+    mail = SendGrid::Mail.new(from, subject, to, content)
+
+    # Envoi de l'e-mail
+    response = sg.client.mail._('send').post(request_body: mail.to_json)
+    puts response.status_code
+    puts response.body
+    puts response.headers
+  end
+  cle api jlbcodeurruby
+  SG.fTKIkrQbSzm9tPBozE5fJw.hhpthKRXJngdD6WYl8SmPG2p0iVcPKD8DVzFebMRI 

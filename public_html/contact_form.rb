@@ -16,6 +16,11 @@ def verify_input(var)
   var
 end
 
+
+require 'pony'
+require 'sendgrid-ruby'
+
+
 post '/submit' do
   array = {
     "firstname" => " ",
@@ -79,6 +84,22 @@ post '/submit' do
   if array["isSuccess"]
     headers = "From: #{array['firstname']} #{array['name']} <#{array['email']}>\r\nReply-To: #{array['email']}"
     `echo "#{email_text}" | mail -s "Message de jlbcodeur !!" #{email_to} --`
+  end
+
+  if array["isSuccess"]
+    # Configuration pour l'envoi d'e-mails avec SendGrid
+    sg = SendGrid::API.new(api_key: 'SG.fTKIkrQbSzm9tPBozE5fJw.hhpthKRXJngdD6WYl8SmPG2p0iVcPKD8DVzFebMRI ')
+    from = SendGrid::Email.new(email: "#{array['firstname']} #{array['name']} <#{array['email']}>")
+    to = SendGrid::Email.new(email: email_to)
+    subject = 'Sujet de l\'e-mail'
+    content = SendGrid::Content.new(type: 'text/plain', value: email_text)
+    mail = SendGrid::Mail.new(from, subject, to, content)
+
+    # Envoi de l'e-mail
+    response = sg.client.mail._('send').post(request_body: mail.to_json)
+    puts response.status_code
+    puts response.body
+    puts response.headers
   end
 
   content_type :json
