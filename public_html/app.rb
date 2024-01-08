@@ -1,5 +1,7 @@
 # app.rb
 require 'sinatra/base'
+require 'dotenv/load'
+
 
 # Include the correct file name: contact_form.rb
 require_relative 'contact_form'
@@ -22,7 +24,9 @@ class MyApp < Sinatra::Base
   get '/contact' do
     erb :contact
   end
-end
 
-# Exécuter l'application si le script est exécuté directement
-MyApp.run! if __FILE__ == $0
+  # Montrez que le formulaire de contact est une extension de l'application principale
+  register ContactForm
+
+  run! if app_file == $0
+end

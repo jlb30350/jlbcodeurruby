@@ -1,7 +1,10 @@
-#contact
+# contact.rb
 require 'sinatra'
 require 'json'
 require 'sendgrid-ruby'
+require 'dotenv/load'
+
+Dotenv.load
 
 def is_email(var)
   (var =~ /\A[\w+\-.]+@[a-z\d\-]+(\.[a-z]+)*\.[a-z]+\z/i) != nil
@@ -12,13 +15,23 @@ def is_phone(var)
 end
 
 def verify_input(var)
-  var = var.strip
-  var = var.gsub(/<|>/, '')
-  var
+  var.strip.gsub(/<|>/, '')
 end
 
+def send_email_with_mail(email_text, email_to)
+  `echo "#{email_text}" | mail -s "Message de jlbcodeur !!" #{email_to} --`
+end
 
+def send_email_with_sendgrid(email_text, email_to)
+  sg = SendGrid::API.new(api_key: ENV['SSG.fTKIkrQbSzm9tPBozE5fJw.hhpthKRXJngdD6WYl8SmPG2p0iVcPKD8DVzFebMRI'])
+  from = SendGrid::Email.new(email: "#{params['firstname']} #{params['name']} <#{params['email']}>")
+  to = SendGrid::Email.new(email: email_to)
+  subject = 'Sujet de l\'e-mail'
+  content = SendGrid::Content.new(type: 'text/plain', value: email_text)
+  mail = SendGrid::Mail.new(from, subject, to, content)
 
+  sg.client.mail._('send').post(request_body: mail.to_json)
+end
 
 post '/submit' do
   array = {
@@ -34,74 +47,26 @@ post '/submit' do
     "messageError" => " ",
     "isSuccess" => false
   }
- 
-	
+
   email_to = "jeanlucbonneville@gmail.com"
 
-  params.each do |key, value|
-    array[key] = verify_input(value)
-  end
+  params.each { |key, value| array[key] = verify_input(value) }
 
   array["isSuccess"] = true
   email_text = ""
 
-  if array["firstname"].empty?
-    array["firstnameError"] = "Je veux connaitre ton prénom !"
-    array["isSuccess"] = false
-  else
-    email_text += "Firstname: #{array["firstname"]}\n"
+  %w[firstame name email phone message].each do |field|
+    if array[field].empty?
+      array["#{field}Error"] = "Le champ #{field.capitalize} est requis."
+      array["isSuccess"] = false
+    else
+      email_text += "#{field.capitalize}: #{array[field]}\n"
+    end
   end
 
-  if array["name"].empty?
-    array["nameError"] = "Et oui je veux tout savoir. Même ton nom !"
-    array["isSuccess"] = false
-  else
-    email_text += "Name: #{array['name']}\n"
-  end
-
-  unless is_email(array["email"])
-    array["emailError"] = "T'essaies de me rouler ? C'est pas un email ça  !"
-    array["isSuccess"] = false
-  else
-    email_text += "Email: #{array['email']}\n"
-  end
-
-  unless is_phone(array["phone"])
-    array["phoneError"] = "Que des chiffres et des espaces, stp..."
-    array["isSuccess"] = false
-  else
-    email_text += "Phone: #{array['phone']}\n"
-  end
-
-  if array["message"].empty?
-    array["messageError"] = "Qu'est-ce que tu veux me dire ?"
-    array["isSuccess"] = false
-  else
-    email_text += "Message: #{array['message']}\n"
-  end
-
-  if array["isSuccess"]
-    headers = "From: #{array['firstname']} #{array['name']} <#{array['email']}>\r\nReply-To: #{array['email']}"
-    `echo "#{email_text}" | mail -s "Message de jlbcodeur !!" #{email_to} --`
-  end
-
-  if array["isSuccess"]
-    # Configuration pour l'envoi d'e-mails avec SendGrid
-    sg = SendGrid::API.new(api_key: 'SG.fTKIkrQbSzm9tPBozE5fJw.hhpthKRXJngdD6WYl8SmPG2p0iVcPKD8DVzFebMRI ')
-    from = SendGrid::Email.new(email: "#{array['firstname']} #{array['name']} <#{array['email']}>")
-    to = SendGrid::Email.new(email: email_to)
-    subject = 'Sujet de l\'e-mail'
-    content = SendGrid::Content.new(type: 'text/plain', value: email_text)
-    mail = SendGrid::Mail.new(from, subject, to, content)
-
-    # Envoi de l'e-mail
-    response = sg.client.mail._('send').post(request_body: mail.to_json)
-    puts response.status_code
-    puts response.body
-    puts response.headers
-  end
+  send_email_with_mail(email_text, email_to) if array["isSuccess"]
+  send_email_with_sendgrid(email_text, email_to) if array["isSuccess"]
 
   content_type :json
   array.to_json
-  end
-
+end
