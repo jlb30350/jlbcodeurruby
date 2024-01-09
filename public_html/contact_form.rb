@@ -1,4 +1,3 @@
-
 # contact_form.rb
 require 'sinatra'
 require 'json'
@@ -36,42 +35,40 @@ module ContactForm
   end
 
   def post_submit
-    Sinatra::Base.post '/submit' do
-      array = {
-        "firstname" => " ",
-        "name" => " ",
-        "email" => " ",
-        "phone" => " ",
-        "message" => " ",
-        "firstnameError" => " ",
-        "nameError" => " ",
-        "emailError" => " ",
-        "phoneError" => " ",
-        "messageError" => " ",
-        "isSuccess" => false
-      }
+    array = {
+      "firstname" => " ",
+      "name" => " ",
+      "email" => " ",
+      "phone" => " ",
+      "message" => " ",
+      "firstnameError" => " ",
+      "nameError" => " ",
+      "emailError" => " ",
+      "phoneError" => " ",
+      "messageError" => " ",
+      "isSuccess" => false
+    }
 
-      email_to = "jeanlucbonneville@gmail.com"
+    email_to = "jeanlucbonneville@gmail.com"
 
-      params.each { |key, value| array[key] = verify_input(value) }
+    params.each { |key, value| array[key] = verify_input(value) }
 
-      array["isSuccess"] = true
-      email_text = ""
+    array["isSuccess"] = true
+    email_text = ""
 
-      %w[firstname name email phone message].each do |field|
-        if array[field].empty?
-          array["#{field}Error"] = "Le champ #{field.capitalize} est requis."
-          array["isSuccess"] = false
-        else
-          email_text += "#{field.capitalize}: #{array[field]}\n"
-        end
+    %w[firstname name email phone message].each do |field|
+      if array[field].empty?
+        array["#{field}Error"] = "Le champ #{field.capitalize} est requis."
+        array["isSuccess"] = false
+      else
+        email_text += "#{field.capitalize}: #{array[field]}\n"
       end
-
-      send_email_with_mail(email_text, email_to) if array["isSuccess"]
-      send_email_with_sendgrid(email_text, email_to) if array["isSuccess"]
-
-      content_type :json
-      array.to_json
     end
+
+    send_email_with_mail(email_text, email_to) if array["isSuccess"]
+    send_email_with_sendgrid(email_text, email_to) if array["isSuccess"]
+
+    content_type :json
+    array.to_json
   end
 end
