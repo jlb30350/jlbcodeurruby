@@ -28,8 +28,10 @@ class MyApp < Sinatra::Base
   # Show that the contact form is an extension of the main application
   register ContactForm
 
-  # Utilisez la route définie dans le module ContactForm
-  post_submit
+  # Use the route defined in the ContactForm module
+  post '/submit' do
+    post_submit
+  end
 
   run! if app_file == $0
 end
