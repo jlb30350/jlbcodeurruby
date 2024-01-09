@@ -21,8 +21,8 @@ class MyApp < Sinatra::Base
   end
 
   # Other routes and configurations can be added here
-  get '/contact' do
-    erb :contact
+  get '/contact_form' do
+    erb :contact_form
   end
 
   # Show that the contact form is an extension of the main application
