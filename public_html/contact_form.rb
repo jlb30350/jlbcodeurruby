@@ -23,7 +23,7 @@ def send_email_with_mail(email_text, email_to)
 end
 
 def send_email_with_sendgrid(email_text, email_to)
-  sg = SendGrid::API.new(api_key: ENV['SG.fTKIkrQbSzm9tPBozE5fJw.hhpthKRXJngdD6WYl8SmPG2p0iVcPKD8DVzFebMRI'])
+  sg = SendGrid::API.new(api_key: ENV['SENDGRID_API_KEY'])
   from = SendGrid::Email.new(email: "#{params['firstname']} #{params['name']} <#{params['email']}>")
   to = SendGrid::Email.new(email: email_to)
   subject = 'Sujet de l\'e-mail'
