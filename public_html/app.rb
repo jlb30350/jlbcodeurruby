@@ -22,16 +22,14 @@ class MyApp < Sinatra::Base
 
   # Other routes and configurations can be added here
   get '/contact' do
-    erb :contact_form
+    erb :contact
   end
 
   # Show that the contact form is an extension of the main application
   register ContactForm
 
   # Use the route defined in the ContactForm module
-  post '/submit' do
-    post_submit
-  end
+  ContactForm.register_routes
 
   run! if app_file == $0
 end
