@@ -1,10 +1,10 @@
-module ContactForm
-# contact.rb
-  require 'sinatra'
-  require 'json'
-  require 'sendgrid-ruby'
-  require 'dotenv/load'
+# contact_form.rb
+require 'sinatra'
+require 'json'
+require 'sendgrid-ruby'
+require 'dotenv/load'
 
+module ContactForm
   Dotenv.load
 
   def is_email(var)
@@ -34,10 +34,8 @@ module ContactForm
     sg.client.mail._('send').post(request_body: mail.to_json)
   end
 
-  def self.post_submit
+  def post_submit
     Sinatra::Base.post '/submit' do
-      # le contenu de votre route POST '/submit' existante
-      
       array = {
         "firstname" => " ",
         "name" => " ",
@@ -51,14 +49,14 @@ module ContactForm
         "messageError" => " ",
         "isSuccess" => false
       }
-      
+
       email_to = "jeanlucbonneville@gmail.com"
-      
+
       params.each { |key, value| array[key] = verify_input(value) }
-      
+
       array["isSuccess"] = true
       email_text = ""
-      
+
       %w[firstname name email phone message].each do |field|
         if array[field].empty?
           array["#{field}Error"] = "Le champ #{field.capitalize} est requis."
@@ -67,10 +65,10 @@ module ContactForm
           email_text += "#{field.capitalize}: #{array[field]}\n"
         end
       end
-      
+
       send_email_with_mail(email_text, email_to) if array["isSuccess"]
       send_email_with_sendgrid(email_text, email_to) if array["isSuccess"]
-      
+
       content_type :json
       array.to_json
     end

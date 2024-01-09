@@ -28,40 +28,8 @@ class MyApp < Sinatra::Base
   # Show that the contact form is an extension of the main application
   register ContactForm
 
-  post '/submit' do
-    begin
-      # Your existing code here
-      array = {
-        # ... (existing array initialization)
-      }
-
-      email_to = "jeanlucbonneville@gmail.com"
-
-      # Validate and process the form data
-      params.each { |key, value| array[key] = verify_input(value) }
-
-      array["isSuccess"] = true
-      email_text = ""
-
-      %w[firstname name email phone message].each do |field|
-        if array[field].empty?
-          array["#{field}Error"] = "Le champ #{field.capitalize} est requis."
-          array["isSuccess"] = false
-        else
-          email_text += "#{field.capitalize}: #{array[field]}\n"
-        end
-      end
-
-      send_email_with_mail(email_text, email_to) if array["isSuccess"]
-      send_email_with_sendgrid(email_text, email_to) if array["isSuccess"]
-
-      content_type :json
-      array.to_json
-    rescue => e
-      puts "Erreur rencontrée: #{e.message}"
-      # Handle the error as needed, you can return a custom error message or page
-    end
-  end
+  # Utilisez la route définie dans le module ContactForm
+  post_submit
 
   run! if app_file == $0
 end
