@@ -21,7 +21,7 @@ class MyApp < Sinatra::Base
   end
 
   # Other routes and configurations can be added here
-  get '/contact_form' do
+  get '/contact' do
     erb :contact_form
   end
 
