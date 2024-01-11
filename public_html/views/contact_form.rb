@@ -24,14 +24,18 @@ module ContactForm
   end
 
   def send_email_with_sendgrid(email_text, email_to)
+    begin
     sg = SendGrid::API.new(api_key: ENV['SENDGRID_API_KEY'])
     from = SendGrid::Email.new(email: "#{params['firstname']} #{params['name']} <#{params['email']}>")
     to = SendGrid::Email.new(email: email_to)
     subject = 'Sujet de l\'e-mail'
     content = SendGrid::Content.new(type: 'text/plain', value: email_text)
     mail = SendGrid::Mail.new(from, subject, to, content)
-
     sg.client.mail._('send').post(request_body: mail.to_json)
+  rescue => e
+    puts "Error sending email with SendGrid: #{e.message}"
+    end
+
   end
 
   class ContactFormApp < Sinatra::Base
@@ -102,5 +106,8 @@ module ContactForm
     end
 
     run! if $PROGRAM_NAME == __FILE__ && !defined?(MyApp)
+
+
+
   end
 end
