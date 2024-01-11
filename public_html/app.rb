@@ -1,7 +1,7 @@
 # app.rb
 require 'sinatra/base'
 require 'dotenv'
-require_relative 'contact_form'
+require_relative 'contact_form.rb'
 
 # Charge les variables d'environnement à partir du fichier .env
 Dotenv.load
