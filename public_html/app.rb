@@ -8,7 +8,8 @@ Dotenv.load
 
 class MyApp < Sinatra::Base
   # Configure Sinatra to run on port 3000
-  set :port, 3000
+  set :port, ENV['PORT'] || 3000
+
 
   # Configure the views directory
   configure do
