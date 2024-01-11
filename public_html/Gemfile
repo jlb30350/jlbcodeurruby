@@ -1,0 +1,15 @@
+source 'https://rubygems.org'
+
+# Déclarez vos dépendances ici
+gem 'sinatra', '3.2.0'
+
+
+gem 'dotenv'
+
+gem 'sendgrid-ruby'
+
+gem 'puma'
+
+gem 'mustermann', '~> 3.0'
+
+

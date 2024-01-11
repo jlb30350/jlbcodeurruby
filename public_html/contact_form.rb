@@ -1,5 +1,5 @@
 # contact_form.rb
-require 'sinatra'
+require 'sinatra/base'
 require 'json'
 require 'sendgrid-ruby'
 require 'dotenv/load'
@@ -34,44 +34,73 @@ module ContactForm
     sg.client.mail._('send').post(request_body: mail.to_json)
   end
 
-  def self.register_routes
+  class ContactFormApp < Sinatra::Base
+    configure do
+      set :public_folder, File.join(File.dirname(__FILE__), 'public')
+      set :views, File.dirname(__FILE__) + '/views'
+    end
+
     # Route pour gérer les soumissions du formulaire
     post '/submit' do
       array = {
-        "firstname" => " ",
-        "name" => " ",
-        "email" => " ",
-        "phone" => " ",
-        "message" => " ",
-        "firstnameError" => " ",
-        "nameError" => " ",
-        "emailError" => " ",
-        "phoneError" => " ",
-        "messageError" => " ",
+        "firstname" => params['firstname'],
+        "name" => params['name'],
+        "email" => params['email'],
+        "phone" => params['phone'],
+        "message" => params['message'],
+        "firstnameError" => "",
+        "nameError" => "",
+        "emailError" => "",
+        "phoneError" => "",
+        "messageError" => "",
         "isSuccess" => false
       }
 
       email_to = "jeanlucbonneville@gmail.com"
 
-      params.each { |key, value| array[key] = verify_input(value) }
-
-      array["isSuccess"] = true
-      email_text = ""
-
       %w[firstname name email phone message].each do |field|
-        if array[field].empty?
+        if params[field].to_s.strip.empty?
           array["#{field}Error"] = "Le champ #{field.capitalize} est requis."
           array["isSuccess"] = false
         else
-          email_text += "#{field.capitalize}: #{array[field]}\n"
+          array[field] = verify_input(params[field])
         end
       end
 
-      send_email_with_mail(email_text, email_to) if array["isSuccess"]
-      send_email_with_sendgrid(email_text, email_to) if array["isSuccess"]
+      if array["isSuccess"]
+        email_text = "#{array['firstname'].capitalize}: #{array['firstname']}\n"
+        email_text += "#{array['name'].capitalize}: #{array['name']}\n"
+        email_text += "#{array['email'].capitalize}: #{array['email']}\n"
+        email_text += "#{array['phone'].capitalize}: #{array['phone']}\n"
+        email_text += "#{array['message'].capitalize}: #{array['message']}\n"
 
-      content_type :json
-      array.to_json
+        send_email_with_mail(email_text, email_to)
+        send_email_with_sendgrid(email_text, email_to)
+
+        # Si la soumission est via AJAX, renvoyer la réponse au format JSON
+        if request.xhr?
+          content_type :json
+          return array.to_json
+        end
+
+        # Rediriger vers la page de confirmation
+        redirect '/confirmation'
+      else
+        # Si la validation échoue, afficher la page d'accueil avec les erreurs
+        erb :index, locals: { errors: array }
+      end
     end
+
+    # Route pour la page d'accueil
+    get '/' do
+      erb :index, locals: { errors: {} }
+    end
+
+    # Page de confirmation
+    get '/confirmation' do
+      erb :confirmation
+    end
+
+    run! if $PROGRAM_NAME == __FILE__ && !defined?(MyApp)
   end
 end
