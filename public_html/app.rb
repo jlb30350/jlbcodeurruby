@@ -35,6 +35,15 @@ class MyApp < Sinatra::Base
     register_routes
   end
 
+  get '/show-routes' do
+    routes = settings.routes['GET'].map { |route| route[0].to_s }
+    routes.join('<br>')
+  end
+
+  error do
+    'Une erreur est survenue'
+  end
+
   run! if app_file == $0
 end
 
