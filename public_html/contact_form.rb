@@ -5,7 +5,7 @@ require 'sendgrid-ruby'
 require 'dotenv/load'
 
 module ContactForm
-  Dotenv.load
+
 
   def is_email(var)
     (var =~ /\A[\w+\-.]+@[a-z\d\-]+(\.[a-z]+)*\.[a-z]+\z/i) != nil
@@ -19,7 +19,7 @@ module ContactForm
     var.strip.gsub(/<|>/, '')
   end
 
-  def send_email_with_mail(email_text, email_to)
+  def send_email_with_mail(params, email_text, email_to, form_params)
     `echo "#{email_text}" | mail -s "Message de jlbcodeur !!" #{email_to} --`
   end
 
