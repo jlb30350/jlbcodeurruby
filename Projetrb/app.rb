@@ -43,7 +43,7 @@ class MyApp < Sinatra::Base
   error do
     'Une erreur est survenue'
   end
-
-  # run! if app_file == $0
+#en production il faut mettre en commentaire la ligne si dessous sinon en local enlever le diese
+  run! if app_file == $0
 end
 
